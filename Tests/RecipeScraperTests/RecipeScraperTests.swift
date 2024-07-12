@@ -8,7 +8,6 @@ struct NetworkingMock: Networking {
 
     func data(
         from url: URL
-        //        delegate: URLSessionTaskDelegate?
     ) async throws -> (Data, URLResponse) {
         try (result.get(), URLResponse())
     }
