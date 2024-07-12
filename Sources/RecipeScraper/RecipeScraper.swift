@@ -1,5 +1,6 @@
 import Foundation
 import SwiftSoup
+import JSONLDDecoder
 
 protocol Networking {
     func data(
@@ -30,13 +31,19 @@ public struct DataLoader: DataLoaderProtocol {
     }
 }
 
-enum RecipeParserError: Error {
+public enum RecipeParserError: Error {
     case dataLoaderError
     case invalidHTML
     case emptyHTML
     case htmlParsingError
     case noRecipeMetaDataError
     case JSONerror
+}
+
+public enum RecipeDecodingError: Error {
+    case dataCorrupted
+    case decodingFailed(Error)
+    case unknownError
 }
 
 public struct RecipeParser {
@@ -108,6 +115,36 @@ public struct RecipeParser {
             throw error
         } catch {
             throw RecipeParserError.invalidHTML
+        }
+    }
+
+    public func decodeRecipeJSON(jsonData: Data) throws -> Recipe {
+        let decoder = RecipeJSONLDDecoder()
+
+        do {
+            let parsedRecipeData = try decoder.decode(Recipe.self, from: jsonData)
+            return parsedRecipeData
+        } catch let error as DecodingError {
+            switch error {
+            case .dataCorrupted(let context):
+                print("Data corrupted: \(context.debugDescription)")
+                throw RecipeDecodingError.dataCorrupted
+            case .keyNotFound(let key, let context):
+                print("Key '\(key)' not found: \(context.debugDescription)")
+                throw RecipeDecodingError.decodingFailed(error)
+            case .typeMismatch(let type, let context):
+                print("Type mismatch for type '\(type)': \(context.debugDescription)")
+                throw RecipeDecodingError.decodingFailed(error)
+            case .valueNotFound(let value, let context):
+                print("Value '\(value)' not found: \(context.debugDescription)")
+                throw RecipeDecodingError.decodingFailed(error)
+            @unknown default:
+                print("Unknown decoding error: \(error)")
+                throw RecipeDecodingError.unknownError
+            }
+        } catch {
+            print("Decoding failed with error: \(error)")
+            throw RecipeDecodingError.decodingFailed(error)
         }
     }
 }

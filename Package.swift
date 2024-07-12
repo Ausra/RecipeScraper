@@ -13,7 +13,8 @@ let package = Package(
             targets: ["RecipeScraper"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0")
+        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
+        .package(url: "https://github.com/Ausra/JSONLDDecoder.git", from: "1.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -21,7 +22,8 @@ let package = Package(
         .target(
             name: "RecipeScraper",
             dependencies: [
-                "SwiftSoup"
+                "SwiftSoup",
+                "JSONLDDecoder"
             ]
         ),
         .testTarget(

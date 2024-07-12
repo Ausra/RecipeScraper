@@ -1,4 +1,7 @@
+import JSONLDDecoder
 
-struct Recipe: Decodable {
+public struct Recipe: Decodable {
     var name: String?
+    @StringDecoder
+    var recipeYield: [String]?
 }
