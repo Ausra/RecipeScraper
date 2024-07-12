@@ -110,7 +110,6 @@ public struct RecipeParser {
             throw RecipeParserError.invalidHTML
         }
     }
-
 }
 
 struct RecipeType: Codable {
