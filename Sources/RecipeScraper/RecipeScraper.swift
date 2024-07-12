@@ -1,34 +1,47 @@
 import Foundation
 import SwiftSoup
 
-public protocol NetworkService {
-    func fetchHTML(from urlString: String) async throws -> String
+protocol Networking {
+    func data(
+        from url: URL
+    ) async throws -> (Data, URLResponse)
 }
 
-public struct RealNetworkService: NetworkService {
-    public init() {} 
+extension URLSession: Networking {}
+
+protocol DataLoaderProtocol {
+    func loadData(from urlString: String) async throws -> Data
+}
+
+public struct DataLoader: DataLoaderProtocol {
+    private let networking: Networking
     
-    public func fetchHTML(from urlString: String) async throws -> String {
+    init(networking: Networking = URLSession.shared) {
+        self.networking = networking
+    }
+    
+    public func loadData(from urlString: String) async throws -> Data {
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
         
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return String(decoding: data, as: UTF8.self)
+        let (data, _) = try await networking.data(from: url)
+        return data
     }
 }
 
-public struct RecipeScraper {
-    private let networkService: NetworkService
+public struct RecipeParser {
     
-    public init(networkService: NetworkService = RealNetworkService()) {
-        self.networkService = networkService
+    private let dataLoader: DataLoaderProtocol
+    
+    init(dataLoader: DataLoaderProtocol = DataLoader()) {
+        self.dataLoader = dataLoader
     }
     
-    public func parseHTML(from urlString: String) async throws -> String {
-        let html = try await networkService.fetchHTML(from: urlString)
-        let document = try SwiftSoup.parse(html)
-        let parsedHTML = try document.outerHtml()
-        return parsedHTML
+    public func parseHTML(from url: String) async throws -> String {
+        let data = try await dataLoader.loadData(from: url)
+        let html = String(decoding: data, as: UTF8.self)
+        
+        return html
     }
 }
