@@ -14,14 +14,14 @@ struct NetworkingMock: Networking {
 }
 
 struct DataLoaderMock: DataLoaderProtocol {
-    var result: Result<Data, Error>
+    var result: Result<Data, Error>?
 
-    init(result: Result<Data, Error>) {
+    init(result: Result<Data, Error>?) {
         self.result = result
     }
 
-    func loadData(from urlString: String) async throws -> Data {
-        return try result.get()
+    func loadData(from urlString: String) async throws -> Data? {
+        return try result?.get()
     }
 }
 
@@ -121,6 +121,136 @@ struct DataLoaderMock: DataLoaderProtocol {
             #expect(normalizedHTML != expectedEmptyNormalizedHTML)
         } catch {
             Issue.record("Expected to handle large HTML document without error")
+        }
+    }
+}
+
+@Suite("RecipeJSONParserTests") struct RecipeJSONParserTests {
+    let parser = RecipeParser(dataLoader: DataLoaderMock(result: nil))
+
+    @Test func testParseValidRecipeJSON() {
+        let validHTML = """
+        <html>
+            <head>
+                <script type="application/ld+json">
+                {
+                    "@type": "Recipe",
+                    "name": "Test Recipe"
+                }
+                </script>
+            </head>
+            <body></body>
+        </html>
+        """
+
+        do {
+            let jsonData = try parser.parseRecipeJSON(from: validHTML)
+            #expect(jsonData != nil)
+
+            if let json = try JSONSerialization.jsonObject(with: jsonData!, options: []) as? [String: Any] {
+                #expect(json["@type"] as? String == "Recipe")
+                #expect(json["name"] as? String == "Test Recipe")
+            } else {
+                Issue.record("Failed to parse JSON data")
+            }
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    @Test func testParseInvalidRecipeJSON() {
+        let invalidHTML = """
+                {
+                    "": "data"
+                }
+                </script>
+            <body>>
+        """
+
+        #expect { try parser.parseRecipeJSON(from: invalidHTML) } throws: { error in
+            return error as? RecipeParserError == RecipeParserError.noRecipeMetaDataError
+
+        }
+    }
+
+    @Test func testParseEmptyHTML() {
+        let emptyHTML = "<html><head></head><body></body></html>"
+
+        #expect { try parser.parseRecipeJSON(from: emptyHTML) } throws: { error in
+            return error as? RecipeParserError == RecipeParserError.noRecipeMetaDataError
+        }
+    }
+
+    @Test func testParseInvalidScriptType() {
+        let invalidScriptTypeHTML = """
+        <html>
+            <head>
+                <script type="text/javascript">
+                {
+                    "@type": "Recipe",
+                    "name": "Test Recipe"
+                }
+                </script>
+            </head>
+            <body></body>
+        </html>
+        """
+
+        #expect { try parser.parseRecipeJSON(from: invalidScriptTypeHTML) } throws: { error in
+            return error as? RecipeParserError == RecipeParserError.noRecipeMetaDataError
+        }
+    }
+
+    @Test func testParseNestedRecipeJSON() {
+        let nestedHTML = """
+        <html>
+            <head>
+                <script type="application/ld+json">
+                {
+                    "@graph": [
+                        {
+                            "@type": "Recipe",
+                            "name": "Nested Recipe"
+                        }
+                    ]
+                }
+                </script>
+            </head>
+            <body></body>
+        </html>
+        """
+
+        do {
+            let jsonData = try parser.parseRecipeJSON(from: nestedHTML)
+            #expect(jsonData != nil)
+
+            if let json = try JSONSerialization.jsonObject(with: jsonData!, options: []) as? [String: Any] {
+                #expect(json["@type"] as? String == "Recipe")
+                #expect(json["name"] as? String == "Nested Recipe")
+            } else {
+                Issue.record("Failed to parse JSON data")
+            }
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    @Test func testParseInvalidJSONInScriptTag() {
+        let invalidJSONHTML = """
+        <html>
+            <head>
+                <script type="application/ld+json">
+                {
+                    "invalidJson": true, // trailing comma makes the JSON invalid
+                }
+                </script>
+            </head>
+            <body></body>
+        </html>
+        """
+
+        #expect { try parser.parseRecipeJSON(from: invalidJSONHTML) } throws: { error in
+            return error as? RecipeParserError == RecipeParserError.JSONerror
         }
     }
 }
