@@ -2,6 +2,8 @@ import JSONLDDecoder
 
 public struct Recipe: Decodable {
     var name: String?
-    @StringDecoder
+    
+    @StringArrayDecoder
     var recipeYield: [String]?
+
 }

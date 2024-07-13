@@ -42,8 +42,7 @@ public enum RecipeParserError: Error {
 
 public enum RecipeDecodingError: Error {
     case dataCorrupted
-    case decodingFailed(Error)
-    case unknownError
+    case decodingFailed
 }
 
 public struct RecipeParser {
@@ -124,24 +123,6 @@ public struct RecipeParser {
         do {
             let parsedRecipeData = try decoder.decode(Recipe.self, from: jsonData)
             return parsedRecipeData
-        } catch let error as DecodingError {
-            switch error {
-            case .dataCorrupted(let context):
-                print("Data corrupted: \(context.debugDescription)")
-                throw RecipeDecodingError.dataCorrupted
-            case .keyNotFound(let key, let context):
-                print("Key '\(key)' not found: \(context.debugDescription)")
-                throw RecipeDecodingError.decodingFailed(error)
-            case .typeMismatch(let type, let context):
-                print("Type mismatch for type '\(type)': \(context.debugDescription)")
-                throw RecipeDecodingError.decodingFailed(error)
-            case .valueNotFound(let value, let context):
-                print("Value '\(value)' not found: \(context.debugDescription)")
-                throw RecipeDecodingError.decodingFailed(error)
-            @unknown default:
-                print("Unknown decoding error: \(error)")
-                throw RecipeDecodingError.unknownError
-            }
         } catch {
             print("Decoding failed with error: \(error)")
             throw RecipeDecodingError.decodingFailed(error)

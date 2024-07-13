@@ -287,10 +287,13 @@ struct DataLoaderMock: DataLoaderProtocol {
         }
         """.data(using: .utf8)!
 
-        #expect { try parser.decodeRecipeJSON(jsonData: missingKeyJSON) } throws: { error in
-            return  error is RecipeDecodingError
+        do {
+            let recipe = try parser.decodeRecipeJSON(jsonData: missingKeyJSON)
+            #expect(recipe.name == nil)
+            #expect(recipe.recipeYield == nil)
+        } catch {
+            Issue.record("Decoding failed with error: \(error)")
         }
-
     }
 
 }
