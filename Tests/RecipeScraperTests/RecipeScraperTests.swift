@@ -296,4 +296,80 @@ struct DataLoaderMock: DataLoaderProtocol {
         }
     }
 
+    @Test func testDecodeRecipeJSONFullModel() {
+        let recipeJSON = """
+        {
+            "@context": "http://schema.org",
+            "@type": "Recipe",
+            "name": "Cupcakes",
+            "image": [
+                {
+                  "@type": "ImageObject",
+                  "url": "https://www.recipes.com/wp-content/uploads/2024/01/0117-296x180.jpg"
+                }
+            ],
+            "recipeYield": "4 servings",
+            "author": { "@type": "Person", "name": "John Apple" },
+            "description": "Fluffy cupcakes",
+            "prepTime": "PT900S",
+            "cookTime": "PT1980S",
+            "totalTime": "PT2880S",
+            "recipeInstructions": [
+                {
+                    "@type": "HowToStep",
+                    "text": "something",
+                    "name": "something",
+                    "url": "https://recipes.com/#step-1"
+                },
+                {
+                    "@type": "HowToStep",
+                    "text": "something2",
+                    "name": "something3",
+                    "url": "https://recipes.com/#step-2"
+                },
+                {
+                    "@type": "HowToStep",
+                    "text": "something4",
+                    "name": "something5",
+                    "url": "https://recipes.com/#step-3"
+                }
+            ],
+        "recipeIngredient": [
+            "1 large egg",
+            "2 tablespoons milk",
+            "1 teaspoon salt"
+        ],
+        }
+        """.data(using: .utf8)!
+
+        let parsedInstrunction = [
+            ParsedInstruction(text: "something", name: "something", image: "https://recipes.com/#step-1"),
+            ParsedInstruction(text: "something2", name: "something3", image: "https://recipes.com/#step-2"),
+            ParsedInstruction(text: "something4", name: "something5", image: "https://recipes.com/#step-3"),
+        ]
+
+        do {
+            let recipe = try parser.decodeRecipeJSON(jsonData: recipeJSON)
+            #expect(recipe.name == "Cupcakes")
+            #expect(recipe.recipeYield == ["4 servings"])
+            #expect(recipe.images == ["https://www.recipes.com/wp-content/uploads/2024/01/0117-296x180.jpg"])
+            #expect(recipe.author == "John Apple")
+            #expect(recipe.description == "Fluffy cupcakes")
+            #expect(recipe.prepTime == "PT900S")
+            #expect(recipe.cookTime == "PT1980S")
+            #expect(recipe.totalTime == "PT2880S")
+            #expect(recipe.instructions == parsedInstrunction)
+            #expect(recipe.ingredients == [
+                "1 large egg",
+                "2 tablespoons milk",
+                "1 teaspoon salt"
+            ])
+        } catch {
+            Issue.record("Decoding failed with error: \(error)")
+        }
+    }
+
 }
+
+
+

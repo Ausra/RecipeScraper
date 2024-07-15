@@ -42,7 +42,7 @@ public enum RecipeParserError: Error {
 
 public enum RecipeDecodingError: Error {
     case dataCorrupted
-    case decodingFailed
+    case decodingFailed(Error)
 }
 
 public struct RecipeParser {
@@ -117,14 +117,13 @@ public struct RecipeParser {
         }
     }
 
-    public func decodeRecipeJSON(jsonData: Data) throws -> Recipe {
+    public func decodeRecipeJSON(jsonData: Data) throws -> ParsedRecipe {
         let decoder = RecipeJSONLDDecoder()
 
         do {
-            let parsedRecipeData = try decoder.decode(Recipe.self, from: jsonData)
-            return parsedRecipeData
+            let parsedRecipe = try decoder.decode(ParsedRecipe.self, from: jsonData)
+            return parsedRecipe
         } catch {
-            print("Decoding failed with error: \(error)")
             throw RecipeDecodingError.decodingFailed(error)
         }
     }
