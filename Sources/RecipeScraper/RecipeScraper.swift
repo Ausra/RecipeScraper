@@ -31,6 +31,7 @@ public struct DataLoader: DataLoaderProtocol {
     }
 }
 
+
 public enum RecipeParserError: Error {
     case dataLoaderError
     case invalidHTML
@@ -38,6 +39,7 @@ public enum RecipeParserError: Error {
     case htmlParsingError
     case noRecipeMetaDataError
     case JSONerror
+    case scrapingError
 }
 
 public enum RecipeDecodingError: Error {
@@ -51,6 +53,17 @@ public struct RecipeParser {
 
     init(dataLoader: DataLoaderProtocol = DataLoader()) {
         self.dataLoader = dataLoader
+    }
+
+    public func scrapeRecipe(from url: String) async throws -> ParsedRecipe {
+        let parsedHTML = try await parseHTML(from: url)
+        let parsedRecipeJSON = try parseRecipeJSON(from: parsedHTML)
+
+        guard let json = parsedRecipeJSON else {
+            throw RecipeParserError.scrapingError
+        }
+        let parsedRecipe = try decodeRecipeJSON(jsonData: json)
+        return parsedRecipe
     }
 
     public func parseHTML(from url: String) async throws -> String {
