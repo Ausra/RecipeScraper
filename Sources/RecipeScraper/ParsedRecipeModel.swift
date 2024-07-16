@@ -9,10 +9,10 @@ public struct ParsedRecipe: Decodable {
     @StringArrayDecoder
     var recipeYield: [String]?
     
-    @NestedObjectsDecoder<String?, AuthorCodingKeys>
+    @NestedObjectsDecoder<String, AuthorCodingKeys>
     var author: String?
     
-    @NestedObjectsDecoder<String?, DescriptionCodingKeys>
+    @NestedObjectsDecoder<String, DescriptionCodingKeys>
     var description: String?
     
     var totalTime: String?
