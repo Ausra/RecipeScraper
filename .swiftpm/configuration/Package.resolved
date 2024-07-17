@@ -1,13 +1,13 @@
 {
-  "originHash" : "47a0dc027347d756bfc38331649c54855c397affae0085c4912e00de0e39a033",
+  "originHash" : "00c9c5d3a180c2deb25eea52002eade6b6357640d0b67c20cd28641a68c53241",
   "pins" : [
     {
       "identity" : "jsonlddecoder",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Ausra/JSONLDDecoder.git",
       "state" : {
-        "revision" : "cd07b711b79bb03c8c34d01f4f565f7994040f61",
-        "version" : "1.0.7"
+        "revision" : "1b2514a54c27fb6e108126c23ca2e449be7478b2",
+        "version" : "1.0.8"
       }
     },
     {
