@@ -41,7 +41,7 @@ let package = Package(
         .iOS(.v18),
     ],
     dependencies: [
-        .package(url: "https://github.com/yourusername/RecipeScraper.git", from: "1.0.0")
+        .package(url: "https://github.com/Ausra/RecipeScraper.git", from: "1.0.0")
     ],
     targets: [
         .target(
@@ -66,87 +66,23 @@ import RecipeScraper
 To scrape a recipe from a URL, create an instance of `RecipeScraper` and call its `scrapeRecipe(from:)` method. Here’s an example using SwiftUI:
 
 ```
-import SwiftUI
+import Foundation
 import RecipeScraper
 
-struct ContentView: View {
-    @State private var urlString: String = ""
-    @State private var recipe: ParsedRecipe?
-    @State private var errorMessage: String?
+// Define an asynchronous function to scrape the recipe
+func fetchRecipe(from urlString: String) async {
+    let scraper = RecipeScraper()
 
-    var body: some View {
-        VStack {
-            TextField("Enter recipe URL", text: $urlString)
-                .padding()
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-
-            Button(action: {
-                Task {
-                    await scrapeRecipe()
-                }
-            }) {
-                Text("Scrape Recipe")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-            }
-            .padding()
-
-            if let recipe = recipe {
-                displayRecipe(recipe)
-            }
-
-            if let errorMessage = errorMessage {
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
-                    .padding()
-            }
-        }
-        .padding()
-    }
-
-    private func scrapeRecipe() async {
-        let scraper = RecipeScraper()
-
-        do {
-            let scrapedRecipe = try await scraper.scrapeRecipe(from: urlString)
-            DispatchQueue.main.async {
-                self.recipe = scrapedRecipe
-                self.errorMessage = nil
-            }
-        } catch {
-            DispatchQueue.main.async {
-                self.errorMessage = error.localizedDescription
-                self.recipe = nil
-            }
-        }
-    }
-
-    private func displayRecipe(_ recipe: ParsedRecipe) -> some View {
-        VStack(alignment: .leading) {
-            if let name = recipe.name {
-                Text("Name: \(name)")
-                    .font(.headline)
-            }
-            if let ingredients = recipe.ingredients {
-                Text("Ingredients:")
-                    .font(.subheadline)
-                ForEach(ingredients, id: \.self) { ingredient in
-                    Text(ingredient)
-                }
-            }
-            if let instructions = recipe.instructions {
-                Text("Instructions:")
-                    .font(.subheadline)
-                ForEach(instructions, id: \.self) { instruction in
-                    Text(instruction)
-                }
-            }
-        }
-        .padding()
+    do {
+        let parsedRecipe = try await scraper.scrapeRecipe(from: urlString)
+        print("Recipe Name: \(parsedRecipe.name ?? "No name")")
+        print("Ingredients: \(parsedRecipe.ingredients ?? [])")
+        // Handle other properties as needed
+    } catch {
+        print("Failed to scrape recipe: \(error.localizedDescription)")
     }
 }
+
 ```
 ### ParsedRecipe Properties
 When you scrape a recipe using `RecipeParser`, it returns a `ParsedRecipe` struct with the following properties:
@@ -161,6 +97,14 @@ When you scrape a recipe using `RecipeParser`, it returns a `ParsedRecipe` struc
 - `cookTime`: The time required to cook the recipe (`String` formatted as an ISO 8601 duration)
 - `instructions`: An array of instructions for the recipe, each represented by a `ParsedInstruction` object (`[ParsedInstruction]`)
 - `ingredients`: An array of ingredients required for the recipe (`[String]`)
+
+### ParsedInstruction Properties
+
+Each `ParsedInstruction` object contains the following properties:
+
+- `text`: The instruction text (`String`)
+- `name`: The name of the instruction step (`String`)
+- `image`: The URL of an image associated with the instruction (`String`)
 
 ### Example of ParsedRecipe
 Here’s an example of what a parsed recipe might look like:
@@ -183,13 +127,6 @@ let parsedRecipe = ParsedRecipe(
     ingredients: ["2 cups flour", "1 cup sugar", "1 cup cocoa powder"]
 )
 ```
-### ParsedInstruction Properties
-
-Each `ParsedInstruction` object contains the following properties:
-
-- `text`: The instruction text (`String`)
-- `name`: The name of the instruction step (`String`)
-- `image`: The URL of an image associated with the instruction (`String`)
 
 ## License
 
