@@ -73,3 +73,20 @@ public struct ParsedInstruction: Decodable, Equatable, NestedObjectProtocol {
     }
 }
 
+struct RecipeType: Codable {
+    let type: String?
+    let name: String?
+
+    enum CodingKeys: String, CodingKey {
+        case type = "@type"
+        case name
+    }
+}
+
+struct Graph: Codable {
+    let graph: [RecipeType]?
+
+    enum CodingKeys: String, CodingKey {
+        case graph = "@graph"
+    }
+}
