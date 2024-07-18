@@ -1,30 +1,30 @@
 import JSONLDDecoder
 
 public struct ParsedRecipe: Decodable, Sendable {
-    var name: String?
-    
+    public var name: String?
+
     @ArrayOfNestedObjectsDecoder<String, ImageCodingKeys>
-    var images: [String]?
-    
+    public var images: [String]?
+
     @StringArrayDecoder
-    var recipeYield: [String]?
-    
+    public var recipeYield: [String]?
+
     @NestedObjectsDecoder<String, AuthorCodingKeys>
-    var author: String?
-    
+    public var author: String?
+
     @NestedObjectsDecoder<String, DescriptionCodingKeys>
-    var description: String?
-    
-    var totalTime: String?
-    var prepTime: String?
-    var cookTime: String?
-    
+    public var description: String?
+
+    public var totalTime: String?
+    public var prepTime: String?
+    public var cookTime: String?
+
     @AdaptiveArrayDecoder
-    var instructions: [ParsedInstruction]?
-    
+    public var instructions: [ParsedInstruction]?
+
     @StringArrayDecoder
-    var ingredients: [String]?
-    
+    public var ingredients: [String]?
+
     enum CodingKeys: String, CodingKey {
         case name
         case images = "image"
@@ -38,15 +38,15 @@ public struct ParsedRecipe: Decodable, Sendable {
         case ingredients = "recipeIngredient"
     }
     
-    enum ImageCodingKeys: String, CodingKey, CaseIterable {
+    public enum ImageCodingKeys: String, CodingKey, CaseIterable {
         case url
     }
     
-    enum AuthorCodingKeys: String, CodingKey, CaseIterable {
+    public enum AuthorCodingKeys: String, CodingKey, CaseIterable {
         case name
     }
     
-    enum DescriptionCodingKeys: String, CodingKey, CaseIterable {
+    public enum DescriptionCodingKeys: String, CodingKey, CaseIterable {
         case description
     }
     
@@ -54,9 +54,9 @@ public struct ParsedRecipe: Decodable, Sendable {
 
 public struct ParsedInstruction: Decodable, Equatable, NestedObjectProtocol, Sendable {
     public let text: String?
-    let name: String?
-    let image: String?
-    
+    public let name: String?
+    public let image: String?
+
     private enum CodingKeys: String, CodingKey {
         case name, text, image = "url"
     }
