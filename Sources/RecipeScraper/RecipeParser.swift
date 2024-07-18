@@ -2,7 +2,7 @@ import Foundation
 import SwiftSoup
 import JSONLDDecoder
 
-public enum RecipeParserError: Error {
+public enum RecipeParserError: Error, Sendable {
     case dataLoaderError
     case invalidHTML
     case emptyHTML
@@ -12,12 +12,12 @@ public enum RecipeParserError: Error {
     case scrapingError
 }
 
-public enum RecipeDecodingError: Error {
+public enum RecipeDecodingError: Error, Sendable {
     case dataCorrupted
     case decodingFailed(Error)
 }
 
-public struct RecipeParser: RecipeParserProtocol {
+public struct RecipeParser: RecipeParserProtocol, Sendable {
 
     private let dataLoader: DataLoaderProtocol
 

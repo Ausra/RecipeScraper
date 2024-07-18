@@ -1,6 +1,6 @@
 import JSONLDDecoder
 
-public struct ParsedRecipe: Decodable {
+public struct ParsedRecipe: Decodable, Sendable {
     var name: String?
     
     @ArrayOfNestedObjectsDecoder<String, ImageCodingKeys>
@@ -52,7 +52,7 @@ public struct ParsedRecipe: Decodable {
     
 }
 
-public struct ParsedInstruction: Decodable, Equatable, NestedObjectProtocol {
+public struct ParsedInstruction: Decodable, Equatable, NestedObjectProtocol, Sendable {
     public let text: String?
     let name: String?
     let image: String?

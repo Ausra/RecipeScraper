@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol Networking {
+public protocol Networking: Sendable {
     func data(
         from url: URL
     ) async throws -> (Data, URLResponse)
@@ -8,11 +8,11 @@ public protocol Networking {
 
 extension URLSession: Networking {}
 
-public protocol DataLoaderProtocol {
+public protocol DataLoaderProtocol: Sendable {
     func loadData(from urlString: String) async throws -> Data?
 }
 
-public struct DataLoader: DataLoaderProtocol {
+public struct DataLoader: DataLoaderProtocol, Sendable {
     private let networking: Networking
 
     public init(networking: Networking = URLSession.shared) {

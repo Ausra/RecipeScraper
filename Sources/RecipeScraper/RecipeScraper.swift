@@ -1,10 +1,10 @@
 import Foundation
 
-public protocol RecipeParserProtocol {
+public protocol RecipeParserProtocol: Sendable {
     func scrapeRecipe(from url: String) async throws -> ParsedRecipe
 }
 
-public struct RecipeScraper {
+public struct RecipeScraper: Sendable {
 
     private let recipeParser: RecipeParserProtocol
 
