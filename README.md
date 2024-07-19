@@ -132,7 +132,7 @@ let parsedRecipe = ParsedRecipe(
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgements
+## Dependecies
 
 - [SwiftSoup](https://github.com/scinfu/SwiftSoup) for HTML parsing.
 - [JSONLDDecoder](https://github.com/Ausra/JSONLDDecoder) for JSON-LD decoding.
