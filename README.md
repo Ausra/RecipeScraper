@@ -128,6 +128,10 @@ let parsedRecipe = ParsedRecipe(
 )
 ```
 
+## Example
+
+Full example of RecipeScraper package in action can be viewed at [DownloadRecipeDemoApp](https://github.com/Ausra/DownloadRecipeAppDemo).
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
